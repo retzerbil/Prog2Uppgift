@@ -1,18 +1,22 @@
 import java.util.*;
 
-public class ListGraph<T>{
+public class ListGraph<Thing>{
 
-    T Node;
+    Map<Thing, Set<Edge>> nodes = new HashMap<>();
 
-    Map<T, Set<Edge>> nodes = new HashMap<>();
-
-    void add(){
-        nodes.put(Node node);
+    void add(Thing node){
+        nodes.putIfAbsent(node, new HashSet<>());
 
     }
 
-    void remove(){
-
+    void remove(Thing node) throws Exception{
+        var test = nodes.get(node);
+        if(test != null){
+            nodes.remove(test);
+        }
+        else{
+            throw new NoSuchElementException();
+        }
     }
 
     void connect(){
