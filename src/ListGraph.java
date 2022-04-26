@@ -9,7 +9,7 @@ public class ListGraph<Thing>{
 
     }
 
-    void remove(Thing node) throws Exception{
+    void remove(Thing node){
         var test = nodes.get(node);
         if(test != null){
             nodes.remove(test);
