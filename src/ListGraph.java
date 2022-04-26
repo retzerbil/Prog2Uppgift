@@ -31,21 +31,31 @@ public class ListGraph<T> implements Iterable<T> {
         if (!hasNode(nodeOne)) nodeMap.remove(nodeOne, new HashSet<T>());
     }
 
-    public void connect(T nodeOne, T nodeTwo){
-        if (!hasNode(nodeOne)){
-            throw new NoSuchElementException(nodeOne.toString() + "you're stupid");
-        }
+    public void connect(T nodeOne, T nodeTwo, String name, double weight){
 
-        if (!hasNode(nodeTwo)){
-            throw new NoSuchElementException(nodeTwo.toString() + "you're stupid");
-        }
+        add(nodeOne);
+        add(nodeTwo);
 
-        if (!hasEdge(nodeOne, nodeTwo)){
-            edgeCount++;
-        }
+        Set<Edge> aEdges = (Set<Edge>) nodeMap.get(nodeOne);
+        Set<Edge> bEdges = (Set<Edge>) nodeMap.get(nodeTwo);
 
-        nodeMap.get(nodeOne).add(nodeTwo);
-        nodeMap.get(nodeTwo).add(nodeOne);
+        aEdges.add(new Edge(nodeOne, name, weight));
+        bEdges.add(new Edge(nodeTwo, name, weight));
+
+//        if (!hasNode(nodeOne)){
+//            throw new NoSuchElementException(nodeOne.toString() + "you're stupid");
+//        }
+//
+//        if (!hasNode(nodeTwo)){
+//            throw new NoSuchElementException(nodeTwo.toString() + "you're stupid");
+//        }
+//
+//        if (!hasEdge(nodeOne, nodeTwo)){
+//            edgeCount++;
+//        }
+//
+//        nodeMap.get(nodeOne).add(nodeTwo);
+//        nodeMap.get(nodeTwo).add(nodeOne);
     }
 
     void disconnect(){
@@ -103,9 +113,9 @@ public class ListGraph<T> implements Iterable<T> {
         ListGraph<String> graph = new ListGraph<>();
 
         graph.add("Stockholm");
-        graph.add("Malmö");
+        graph.add("Malmo");
 
-        graph.connect("Stockholm", "Malmö");
+        graph.connect("Stockholm", "Malmo", "E20", 200);
 
 
         System.out.println(graph);

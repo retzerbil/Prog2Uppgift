@@ -1,12 +1,13 @@
 import java.util.Objects;
 
-public class Edge {
+public class Edge <T>{
 
-    private final String destination;
-    private final String name;
-    private final double weight;
+    public T nodeOne;
+    public String name;
+    public double weight;
 
-    public Edge(String name, double weight) {
+    public Edge(T nodeOne, String name, double weight) {
+        this.nodeOne = Objects.requireNonNull(nodeOne);
         this.name = Objects.requireNonNull(name);
 
         if (Double.isNaN(weight)) {
@@ -15,8 +16,8 @@ public class Edge {
         this.weight = weight;
     }
 
-    void getDestination(){
-
+    public T getDestination() {
+        return nodeOne;
     }
 
     public double getWeight() {
