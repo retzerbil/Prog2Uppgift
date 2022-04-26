@@ -31,18 +31,20 @@ public class ListGraph<T> implements Iterable<T> {
         if (!hasNode(nodeOne)) nodeMap.remove(nodeOne, new HashSet<T>());
     }
 
-    public void connect(T nodeOne, T nodeTwo){
+    public void connect(T nodeOne, T nodeTwo, String name, int weight){
         if (!hasNode(nodeOne)){
-            throw new NoSuchElementException(nodeOne.toString() + "you're stupid");
+            throw new NoSuchElementException(nodeOne.toString() + " you're stupid");
         }
 
         if (!hasNode(nodeTwo)){
-            throw new NoSuchElementException(nodeTwo.toString() + "you're stupid");
+            throw new NoSuchElementException(nodeTwo.toString() + " you're stupid");
         }
 
         if (!hasEdge(nodeOne, nodeTwo)){
             edgeCount++;
         }
+
+        nodeMap.get(nodeOne).add(new Edge(name, weight, nodeTwo));
 
         nodeMap.get(nodeOne).add(nodeTwo);
         nodeMap.get(nodeTwo).add(nodeOne);

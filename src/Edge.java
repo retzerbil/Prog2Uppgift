@@ -1,12 +1,15 @@
-import java.util.Objects;
+import java.util.*;
 
-public class Edge {
+public class Edge <T>{
 
-    private final String destination;
-    private final String name;
-    private final double weight;
 
-    public Edge(String name, double weight) {
+
+    private T nodeOne;
+    private String name;
+    private double weight;
+
+    public Edge(String name, double weight, T nodeOne) {
+        this.nodeOne = Objects.requireNonNull(nodeOne);
         this.name = Objects.requireNonNull(name);
 
         if (Double.isNaN(weight)) {
@@ -15,16 +18,21 @@ public class Edge {
         this.weight = weight;
     }
 
-    void getDestination(){
-
+    T getDestination(){
+        return nodeOne;
     }
 
     public double getWeight() {
         return weight;
     }
 
-    void setWeight(){
-
+    void setWeight(int newWeight){
+        if(newWeight < 0){
+            throw new IllegalArgumentException("Vikten är negativ");
+        }
+        else{
+            this.weight = newWeight;
+        }
     }
 
     public String getName() {
