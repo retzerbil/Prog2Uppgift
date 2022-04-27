@@ -3,14 +3,12 @@ import java.util.*;
 public class ListGraph<T> implements Iterable<T> {
     private Map<T, Set<T>> nodeMap;
 
-    private int edgeCount;
-
     public ListGraph() {
         nodeMap = new HashMap<>();
     }
 
     private void validateNode(T nodeOne) {
-        if (!hasNode(nodeOne)) throw new IllegalArgumentException(nodeOne.toString() + " is not a vertex");
+        if (!hasNode(nodeOne)) throw new NoSuchElementException(nodeOne.toString() + " node doesn't exist");
     }
 
     public boolean hasNode(T nodeOne) {
@@ -20,7 +18,13 @@ public class ListGraph<T> implements Iterable<T> {
     public boolean hasEdge(T nodeOne, T nodeTwo) {
         validateNode(nodeOne);
         validateNode(nodeTwo);
-        return nodeMap.get(nodeOne).contains(nodeTwo);
+        if(nodeMap.get(nodeOne).contains(nodeTwo)){
+            System.out.println("EDGE EXISTS");
+            return true;
+        } else {
+            System.out.println("NO EDGE");
+            return false;
+        }
     }
 
     public void add(T nodeOne){
@@ -32,7 +36,13 @@ public class ListGraph<T> implements Iterable<T> {
     }
 
     public void connect(T nodeOne, T nodeTwo, String name, double weight){
-
+        if(!hasNode(nodeOne)){
+            throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeOne + " does not exist");
+        } else if (!hasNode(nodeTwo)){
+            throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeTwo + " does not exist");
+        } else if (weight < 0){
+            throw new IllegalArgumentException();
+        }
         add(nodeOne);
         add(nodeTwo);
 
@@ -59,7 +69,11 @@ public class ListGraph<T> implements Iterable<T> {
     }
 
     void disconnect(T nodeOne, T nodeTwo){
-
+        if(!hasNode(nodeOne) || !hasNode(nodeTwo)) {
+            System.out.println("CHECK");
+            this.nodeMap.get(nodeOne).remove(nodeTwo);
+            this.nodeMap.get(nodeTwo).remove(nodeOne);
+        }
     }
 
     void setConnectionWeight(){
@@ -77,21 +91,8 @@ public class ListGraph<T> implements Iterable<T> {
     public Edge<T> getEdgeBetween(T nodeOne, T nodeTwo){
         validateNode(nodeOne);
         validateNode(nodeTwo);
-        if(nodeMap.get(nodeOne).contains(nodeTwo)){
-            Edge.getDestination();
-        } else {
+
             return null;
-        }
-    }
-
-    private Edge getEdgeBetween(City next, City current) {
-        for (Edge edge : nodes.get(next)) {
-            if (edge.getDestination().equals(current)) {
-                return edge;
-            }
-        }
-
-        return null;
     }
 
     @Override
@@ -133,11 +134,25 @@ public class ListGraph<T> implements Iterable<T> {
 
         graph.connect("Stockholm", "Malmo", "E20", 200);
 
+        System.out.println("BEFORE DISCONNECT");
 
         System.out.println(graph);
 
         System.out.println("Nodes: " + graph.getNodes());
-        System.out.println("Edges: " + graph.getNodes());
+
+        graph.hasEdge("Stockholm", "Malmo");
+
+
+        graph.disconnect("Stockholm", "Malmo");
+
+        System.out.println("AFTER DISCONNECT");
+
+        graph.hasEdge("Stockholm", "Malmo");
+
+        System.out.println(graph);
+
+        System.out.println("Nodes: " + graph.getNodes());
+
     }
 
 }
