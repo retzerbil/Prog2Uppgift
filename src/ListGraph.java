@@ -58,7 +58,7 @@ public class ListGraph<T> implements Iterable<T> {
 //        nodeMap.get(nodeTwo).add(nodeOne);
     }
 
-    void disconnect(){
+    void disconnect(T nodeOne, T nodeTwo){
 
     }
 
@@ -74,8 +74,24 @@ public class ListGraph<T> implements Iterable<T> {
 //
 //    }
 
-    void getEdgeBetween(){
+    public Edge<T> getEdgeBetween(T nodeOne, T nodeTwo){
+        validateNode(nodeOne);
+        validateNode(nodeTwo);
+        if(nodeMap.get(nodeOne).contains(nodeTwo)){
+            Edge.getDestination();
+        } else {
+            return null;
+        }
+    }
 
+    private Edge getEdgeBetween(City next, City current) {
+        for (Edge edge : nodes.get(next)) {
+            if (edge.getDestination().equals(current)) {
+                return edge;
+            }
+        }
+
+        return null;
     }
 
     @Override

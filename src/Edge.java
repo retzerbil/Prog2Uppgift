@@ -24,8 +24,13 @@ public class Edge <T>{
         return weight;
     }
 
-    void setWeight(){
-
+    void setWeight(int newWeight){
+            if(newWeight < 0){
+                throw new IllegalArgumentException("Vikten är negativ");
+            }
+            else{
+                this.weight = newWeight;
+            }
     }
 
     public String getName() {
@@ -35,6 +40,7 @@ public class Edge <T>{
     @Override
     public String toString() {
         return "Edge{" +
+                ", destination=" + nodeOne +
                 ", name='" + name + '\'' +
                 ", weight=" + weight +
                 '}';
