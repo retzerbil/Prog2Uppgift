@@ -1,11 +1,8 @@
 import java.util.*;
 
 public class ListGraph<T> implements Iterable<T> {
-    private Map<T, Set<T>> nodeMap;
 
-    public ListGraph() {
-        nodeMap = new HashMap<>();
-    }
+    private final Map<T, Set<Edge>> nodeMap = new HashMap<>();
 
     private void validateNode(T nodeOne) {
         if (!hasNode(nodeOne)) throw new NoSuchElementException(nodeOne.toString() + " node doesn't exist");
@@ -18,7 +15,8 @@ public class ListGraph<T> implements Iterable<T> {
     public boolean hasEdge(T nodeOne, T nodeTwo) {
         validateNode(nodeOne);
         validateNode(nodeTwo);
-        if(nodeMap.get(nodeOne).contains(nodeTwo)){
+
+      if(nodeMap.get(nodeOne).contains(nodeTwo)){
             System.out.println("EDGE EXISTS");
             return true;
         } else {
@@ -28,7 +26,8 @@ public class ListGraph<T> implements Iterable<T> {
     }
 
     public void add(T nodeOne){
-        if (!hasNode(nodeOne)) nodeMap.put(nodeOne, new HashSet<T>());
+        nodeMap.putIfAbsent(nodeOne, new HashSet<>());
+        //if (!hasNode(nodeOne)) nodeMap.put(nodeOne, new HashSet<T>());
     }
 
     public void remove(T nodeOne){
@@ -36,6 +35,7 @@ public class ListGraph<T> implements Iterable<T> {
     }
 
     public void connect(T nodeOne, T nodeTwo, String name, double weight){
+
         if(!hasNode(nodeOne)){
             throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeOne + " does not exist");
         } else if (!hasNode(nodeTwo)){
@@ -43,33 +43,17 @@ public class ListGraph<T> implements Iterable<T> {
         } else if (weight < 0){
             throw new IllegalArgumentException();
         }
-        add(nodeOne);
-        add(nodeTwo);
 
-        Set<Edge> aEdges = (Set<Edge>) nodeMap.get(nodeOne);
-        Set<Edge> bEdges = (Set<Edge>) nodeMap.get(nodeTwo);
+        Set<Edge> nodeOneEdges = (Set<Edge>) nodeMap.get(nodeOne);
+        Set<Edge> nodeTwoEdges = (Set<Edge>) nodeMap.get(nodeTwo);
 
-        aEdges.add(new Edge(nodeOne, name, weight));
-        bEdges.add(new Edge(nodeTwo, name, weight));
+        nodeOneEdges.add(new Edge(nodeOne, name, weight));
+        nodeTwoEdges.add(new Edge(nodeTwo, name, weight));
 
-//        if (!hasNode(nodeOne)){
-//            throw new NoSuchElementException(nodeOne.toString() + "you're stupid");
-//        }
-//
-//        if (!hasNode(nodeTwo)){
-//            throw new NoSuchElementException(nodeTwo.toString() + "you're stupid");
-//        }
-//
-//        if (!hasEdge(nodeOne, nodeTwo)){
-//            edgeCount++;
-//        }
-//
-//        nodeMap.get(nodeOne).add(nodeTwo);
-//        nodeMap.get(nodeTwo).add(nodeOne);
     }
 
     void disconnect(T nodeOne, T nodeTwo){
-        if(!hasNode(nodeOne) || !hasNode(nodeTwo)) {
+        if(hasNode(nodeOne) || hasNode(nodeTwo)) {
             System.out.println("CHECK");
             this.nodeMap.get(nodeOne).remove(nodeTwo);
             this.nodeMap.get(nodeTwo).remove(nodeOne);
@@ -101,7 +85,7 @@ public class ListGraph<T> implements Iterable<T> {
 
         for (T nodeOne: nodeMap.keySet()) {
             builder.append(nodeOne.toString() + ": ");
-            for (T nodeTwo: nodeMap.get(nodeOne)) {
+            for (Edge nodeTwo: nodeMap.get(nodeOne)) {
                 builder.append(nodeTwo.toString() + " ");
             }
             builder.append("\n");
@@ -132,27 +116,16 @@ public class ListGraph<T> implements Iterable<T> {
         graph.add("Stockholm");
         graph.add("Malmo");
 
-        graph.connect("Stockholm", "Malmo", "E20", 200);
-
-        System.out.println("BEFORE DISCONNECT");
-
         System.out.println(graph);
 
-        System.out.println("Nodes: " + graph.getNodes());
+        graph.connect("Stockholm", "Malmo", "E20", 510);
 
-        graph.hasEdge("Stockholm", "Malmo");
-
+        System.out.println(graph);
 
         graph.disconnect("Stockholm", "Malmo");
 
-        System.out.println("AFTER DISCONNECT");
-
-        graph.hasEdge("Stockholm", "Malmo");
-
         System.out.println(graph);
-
-        System.out.println("Nodes: " + graph.getNodes());
-
+        
     }
 
 }
