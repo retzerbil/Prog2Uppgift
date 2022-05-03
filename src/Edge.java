@@ -39,11 +39,7 @@ public class Edge <T>{
 
     @Override
     public String toString() {
-        return "Edge{" +
-                ", destination=" + nodeOne +
-                ", name='" + name + '\'' +
-                ", weight=" + weight +
-                '}';
+        return "till " + nodeOne + " med " + name + " tar " + weight;
     }
 
 }

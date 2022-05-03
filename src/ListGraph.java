@@ -12,27 +12,8 @@ public class ListGraph<T> implements Graph<T> {
         return nodeMap.containsKey(nodeOne);
     }
 
-    public boolean hasEdge(T nodeOne, T nodeTwo) {
-        validateNode(nodeOne);
-        validateNode(nodeTwo);
-
-      if(nodeMap.get(nodeOne).contains(nodeTwo)){
-            System.out.println("EDGE EXISTS");
-            return true;
-        } else {
-            System.out.println("NO EDGE");
-            return false;
-        }
-    }
-
     public void add(T nodeOne){
         nodeMap.putIfAbsent(nodeOne, new HashSet<>());
-        //if (!hasNode(nodeOne)) nodeMap.put(nodeOne, new HashSet<T>());
-    }
-
-    @Override
-    public void setConnectionWeight(T node1, T node2, int weight) {
-
     }
 
     @Override
@@ -41,7 +22,12 @@ public class ListGraph<T> implements Graph<T> {
     }
 
     public void remove(T nodeOne){
-        if (!hasNode(nodeOne)) nodeMap.remove(nodeOne, new HashSet<T>());
+        if(hasNode(nodeOne)) {
+            nodeMap.remove(nodeOne);
+
+        } else {
+            throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeOne + " does not exist");
+        }
     }
 
     public void connect(T nodeOne, T nodeTwo, String name, int weight){
@@ -51,7 +37,9 @@ public class ListGraph<T> implements Graph<T> {
         } else if (!hasNode(nodeTwo)){
             throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeTwo + " does not exist");
         } else if (weight < 0){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Weight can not be less than 0");
+        } else if (pathExists(nodeOne, nodeTwo)) {
+            throw new IllegalStateException();
         }
 
         Set<Edge<T>> nodeOneEdges = nodeMap.get(nodeOne);
@@ -68,36 +56,49 @@ public class ListGraph<T> implements Graph<T> {
             Edge<T> edge1 = getEdgeBetween(nodeOne, nodeTwo);
             Edge<T> edge2 = getEdgeBetween(nodeTwo, nodeOne);
 
-
-            System.out.println("CHECK");
-            this.nodeMap.get(nodeOne).remove(edge1);
-            this.nodeMap.get(nodeTwo).remove(edge2);
+            if(edge1 != null && edge2 != null) {
+                this.nodeMap.get(nodeOne).remove(edge1);
+                this.nodeMap.get(nodeTwo).remove(edge2);
+            } else {
+                throw new IllegalStateException();
+            }
         }
-    }
-
-    void setConnectionWeight(){
-
     }
 
     @Override
-    public Collection<Edge<T>> getEdgesFrom(T node) {
-        return null;
+    public void setConnectionWeight(T nodeOne, T nodeTwo, int newWeight){
+        if(!nodeMap.containsKey(nodeOne) || !nodeMap.containsKey(nodeTwo)){
+            throw new NoSuchElementException();
+        }else if (newWeight < 0){
+            throw new IllegalArgumentException();
+        }else{
+            getEdgeBetween(nodeOne, nodeTwo).setWeight(newWeight);
+            getEdgeBetween(nodeTwo, nodeOne).setWeight(newWeight);
+        }
     }
 
-//    public int getEdgesFrom(){
-//
-//    }
+
+    @Override
+    public Collection<Edge<T>> getEdgesFrom(T node) {
+        if(!nodeMap.containsKey(node)){
+            throw new NoSuchElementException();
+        }else{
+            Collection<Edge<T>> edgeCollection = nodeMap.get(node);
+            return edgeCollection;
+        }
+    }
 
     public Edge<T> getEdgeBetween(T nodeOne, T nodeTwo){
-        validateNode(nodeOne);
-        validateNode(nodeTwo);
-
-        for (Edge<T> tEdge : nodeMap.get(nodeOne)) {
-            if(tEdge.getDestination().equals(nodeTwo)) {
-                return tEdge;
+        if(!hasNode(nodeOne) || !hasNode(nodeTwo)){
+            throw new NoSuchElementException(nodeOne.toString() + " node doesn't exist");
+        } else {
+            for (Edge<T> tEdge : nodeMap.get(nodeOne)) {
+                if(tEdge.getDestination().equals(nodeTwo)) {
+                    return tEdge;
+                }
             }
         }
-    return null;
+        return null;
     }
 
     @Override
@@ -116,19 +117,24 @@ public class ListGraph<T> implements Graph<T> {
     }
 
     public boolean pathExists(T nodeOne, T nodeTwo){
-        if(!hasNode(nodeOne) || !hasNode(nodeTwo)){
-            return false;
+        if(hasNode(nodeOne) || hasNode(nodeTwo)){
+            if (getEdgeBetween(nodeOne, nodeTwo) != null) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
+
 
     @Override
-    public List<Edge<T>> getPath(T from, T to) {
+    public List<Edge<T>> getPath(T nodeOne, T nodeTwo) {
+        if(hasNode(nodeOne) || hasNode(nodeTwo)) {
+            List <Edge<T>> edgeList = new ArrayList<>();
+
+
+            return edgeList;
+        }
         return null;
-    }
-
-    void getPath() {
-
     }
 
     public static void main(String[] args) {
@@ -143,9 +149,7 @@ public class ListGraph<T> implements Graph<T> {
 
         System.out.println(graph);
 
-        graph.disconnect("Stockholm", "Malmo");
-
-        System.out.println(graph);
+        System.out.println(graph.getEdgesFrom("Stockholm"));
 
     }
 
