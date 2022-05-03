@@ -1,20 +1,49 @@
-public class Edge {
+import java.util.Objects;
 
-    public void getDestination(){
+public class Edge <T>{
+
+    public T nodeOne;
+    public String name;
+    public int weight;
+
+    public Edge(T nodeOne, String name, int weight) {
+        this.nodeOne = Objects.requireNonNull(nodeOne);
+        this.name = Objects.requireNonNull(name);
+
+        if (weight < 0) {
+            throw new IllegalArgumentException();
+        }
+        this.weight = weight;
     }
 
-    public void getWeight(){
+    public T getDestination() {
+        return nodeOne;
     }
 
-    public void setWeight(){
+    public int getWeight() {
+        return weight;
     }
 
-    public String getName(){
-        return null;
+    void setWeight(int newWeight){
+            if(newWeight < 0){
+                throw new IllegalArgumentException("Vikten är negativ");
+            }
+            else{
+                this.weight = newWeight;
+            }
     }
 
-    public String toString(){
-        return null;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                ", destination=" + nodeOne +
+                ", name='" + name + '\'' +
+                ", weight=" + weight +
+                '}';
     }
 
 }
