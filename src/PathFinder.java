@@ -1,5 +1,7 @@
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
@@ -8,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -17,19 +20,34 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 public class PathFinder extends Application {
+
+    private Stage stage;
+    private BorderPane root;
+    private boolean changed = false;
+
+
 
     public static void main(String[] args) {
         Application.launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) {
-
-        BorderPane root = new BorderPane();
+    public void start(Stage stage) {
+        this.stage = stage;
+        root = new BorderPane();
         VBox vbox = new VBox();
         root.setTop(vbox);
+
+        //TOP
 
         // create a menu
         Menu m = new Menu("File");
@@ -42,9 +60,9 @@ public class PathFinder extends Application {
         MenuItem saveItem = new MenuItem("Save");
         //saveItem.setOnAction(new saveItemHandler());
         MenuItem saveImage = new MenuItem("Save Image");
-        //saveImage.setOnAction(new saveImageHandler());
+        saveImage.setOnAction(new SaveImageHandler());
         MenuItem exitProgram = new MenuItem("Exit");
-        //exitProgram.setOnAction(new exitProgramHandler());
+        exitProgram.setOnAction(new ExitProgramHandler());
 
         // add menu items to menu
         m.getItems().addAll(newMap,openItem,saveItem,saveImage,exitProgram);
@@ -75,7 +93,7 @@ public class PathFinder extends Application {
 
         vbox.getChildren().add(controls);
 
-
+        //CENTER
         Pane center = new Pane();
         Image image = new Image("file:D:/europa.gif");
         ImageView imageView = new ImageView(image);
@@ -85,8 +103,44 @@ public class PathFinder extends Application {
 
 
         Scene scene = new Scene(root, 600, 800, Color.GRAY);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        primaryStage.setResizable(false);
+        stage.setScene(scene);
+        stage.show();
+        stage.setResizable(false);
+
     }
+
+    class ExitProgramHandler implements EventHandler<ActionEvent>{
+        @Override public void handle(ActionEvent event){
+            // Skapa samma event som när användaren klickar i stängsningsrutan,
+            // tas om hand av ExitHandler
+            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        }
+    }
+
+    class SaveImageHandler implements EventHandler<ActionEvent>{
+        @Override public void handle(ActionEvent event){
+            try{
+                WritableImage writableImage = root.snapshot(null, null);
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage,null);
+                ImageIO.write(bufferedImage, "png",new File("capture.png"));
+            }catch(IOException e){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Fel!");
+                alert.showAndWait();
+            }
+        }
+    }
+
+    class ExitHandler implements EventHandler<WindowEvent> {
+        @Override public void handle(WindowEvent event){
+            if (changed){
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setHeaderText("Unsaved changes, exit anyway?");
+                alert.setContentText(null);
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() != ButtonType.OK)
+                    event.consume();
+            }
+        }
+    }
+
 }
