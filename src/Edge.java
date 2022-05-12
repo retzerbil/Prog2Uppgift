@@ -2,9 +2,9 @@ import java.util.Objects;
 
 public class Edge <T>{
 
-    public T nodeOne;
-    public String name;
-    public int weight;
+    private T nodeOne;
+    private String name;
+    private int weight;
 
     public Edge(T nodeOne, String name, int weight) {
         this.nodeOne = Objects.requireNonNull(nodeOne);
@@ -25,12 +25,12 @@ public class Edge <T>{
     }
 
     void setWeight(int newWeight){
-            if(newWeight < 0){
-                throw new IllegalArgumentException("Vikten är negativ");
-            }
-            else{
-                this.weight = newWeight;
-            }
+        if(newWeight < 0){
+            throw new IllegalArgumentException("Vikten är negativ");
+        }
+        else{
+            this.weight = newWeight;
+        }
     }
 
     public String getName() {
