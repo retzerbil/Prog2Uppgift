@@ -1,88 +1,26 @@
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
-public class Graph<T> implements Iterable<T> {
-    private Map<T, Set<T>> verticesMap;
+public interface Graph<T> {
 
-    private int edgesCount;
+    void add(T node);
 
-    public Graph() {
-        verticesMap = new HashMap<>();
-    }
+    void connect(T node1, T node2, String name, int weight);
 
-    public int getNumVertices() {
-        return verticesMap.size();
-    }
+    void setConnectionWeight(T node1, T node2, int weight);
 
-    public int getNumEdges() {
-        return edgesCount;
-    }
+    Set<T> getNodes();
 
+    Collection<Edge<T>> getEdgesFrom(T node);
 
-    private void validateVertex(T v) {
-        if (!hasVertex(v)) throw new IllegalArgumentException(v.toString() + " is not a vertex");
-    }
+    Edge<T> getEdgeBetween(T node1, T node2);
 
-    public int degree(T v) {
-        validateVertex(v);
-        return verticesMap.get(v).size();
-    }
+    void disconnect(T node1, T node2);
 
-    public void addEdge(T v, T w) {
-        if (!hasVertex(v)) addVertex(v);
-        if (!hasVertex(w)) addVertex(w);
-        if (!hasEdge(v, w)) edgesCount++;
-        verticesMap.get(v).add(w);
-        verticesMap.get(w).add(v);
-    }
+    void remove(T node);
 
-    public void addVertex(T v) {
-        if (!hasVertex(v)) verticesMap.put(v, new HashSet<T>());
-    }
+    boolean pathExists(T from, T to);
 
-    public boolean hasEdge(T v, T w) {
-        validateVertex(v);
-        validateVertex(w);
-        return verticesMap.get(v).contains(w);
-    }
-
-    public boolean hasVertex(T v) {
-        return verticesMap.containsKey(v);
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-        return verticesMap.keySet().iterator();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-
-        for (T v: verticesMap.keySet()) {
-            builder.append(v.toString() + ": ");
-            for (T w: verticesMap.get(v)) {
-                builder.append(w.toString() + " ");
-            }
-            builder.append("\n");
-        }
-
-        return builder.toString();
-    }
-
-    public static void main(String[] args) {
-        Graph<String> graph = new Graph<>();
-
-        graph.addEdge("A", "B");
-        graph.addEdge("A", "C");
-        graph.addEdge("C", "D");
-        graph.addEdge("D", "E");
-        graph.addEdge("D", "G");
-        graph.addEdge("E", "G");
-        graph.addVertex("H");
-
-        System.out.println(graph);
-
-        System.out.println("Vertices: " + graph.getNumVertices());
-        System.out.println("Edges: " + graph.getNumEdges());
-    }
+    List<Edge<T>> getPath(T from, T to);
 }

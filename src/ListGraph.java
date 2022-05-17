@@ -1,16 +1,11 @@
 import java.util.*;
 
-public class ListGraph<T> implements Iterable<T> {
-    private Map<T, Set<T>> nodeMap;
+public class ListGraph<T> implements Graph<T> {
 
-    private int edgeCount;
-
-    public ListGraph() {
-        nodeMap = new HashMap<>();
-    }
+    private final Map<T,  Set<Edge<T>>>nodeMap = new HashMap<>();
 
     private void validateNode(T nodeOne) {
-        if (!hasNode(nodeOne)) throw new IllegalArgumentException(nodeOne.toString() + " is not a vertex");
+        if (!hasNode(nodeOne)) throw new NoSuchElementException(nodeOne.toString() + " node doesn't exist");
     }
 
     public boolean hasNode(T nodeOne) {
@@ -20,54 +15,108 @@ public class ListGraph<T> implements Iterable<T> {
     public boolean hasEdge(T nodeOne, T nodeTwo) {
         validateNode(nodeOne);
         validateNode(nodeTwo);
+
         return nodeMap.get(nodeOne).contains(nodeTwo);
     }
 
     public void add(T nodeOne){
-        if (!hasNode(nodeOne)) nodeMap.put(nodeOne, new HashSet<T>());
+        nodeMap.putIfAbsent(nodeOne, new HashSet<>());
+    }
+
+    @Override
+    public Set<T> getNodes() {
+        return nodeMap.keySet();
     }
 
     public void remove(T nodeOne){
-        if (!hasNode(nodeOne)) nodeMap.remove(nodeOne, new HashSet<T>());
+        if(!nodeMap.containsKey(nodeOne)) {
+            throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeOne + " does not exist");
+        }
+        for (Edge<T> edge:nodeMap.get(nodeOne)) {
+            for (Edge<T> nodeToRemove:nodeMap.get(edge.getDestination())) {
+                if(nodeToRemove.getDestination().equals(nodeOne)) {
+                    nodeMap.get(edge.getDestination()).remove(nodeToRemove);
+                    break;
+                }
+            }
+        }
+
+        nodeMap.remove(nodeOne);
+
     }
 
     public void connect(T nodeOne, T nodeTwo, String name, int weight){
-        if (!hasNode(nodeOne)){
-            throw new NoSuchElementException(nodeOne.toString() + " you're stupid");
+
+        if(!hasNode(nodeOne)){
+            throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeOne + " does not exist");
+        } else if (!hasNode(nodeTwo)){
+            throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeTwo + " does not exist");
+        } else if (weight < 0){
+            throw new IllegalArgumentException();
+        }
+        else if(getEdgeBetween(nodeOne,nodeTwo) != null){
+            throw new IllegalStateException();
         }
 
-        if (!hasNode(nodeTwo)){
-            throw new NoSuchElementException(nodeTwo.toString() + " you're stupid");
+
+
+        else{
+            Set<Edge<T>> nodeOneEdges = nodeMap.get(nodeOne);
+            Set<Edge<T>> nodeTwoEdges = nodeMap.get(nodeTwo);
+
+            nodeOneEdges.add(new Edge<T>(nodeTwo, name, weight));
+            nodeTwoEdges.add(new Edge<T>(nodeOne, name, weight));}
+    }
+
+
+    public void disconnect(T nodeOne, T nodeTwo){
+        if(hasNode(nodeOne) || hasNode(nodeTwo)) {
+
+            Edge<T> edge1 = getEdgeBetween(nodeOne, nodeTwo);
+            Edge<T> edge2 = getEdgeBetween(nodeTwo, nodeOne);
+
+            if(edge1 != null && edge2 != null) {
+                this.nodeMap.get(nodeOne).remove(edge1);
+                this.nodeMap.get(nodeTwo).remove(edge2);
+            } else {
+                throw new IllegalStateException();
+            }
         }
+    }
 
-        if (!hasEdge(nodeOne, nodeTwo)){
-            edgeCount++;
+    @Override
+    public void setConnectionWeight(T nodeOne, T nodeTwo, int newWeight){
+        if(!nodeMap.containsKey(nodeOne) || !nodeMap.containsKey(nodeTwo)){
+            throw new NoSuchElementException();
+        }else if (newWeight < 0){
+            throw new IllegalArgumentException();
+        }else{
+            getEdgeBetween(nodeOne, nodeTwo).setWeight(newWeight);
+            getEdgeBetween(nodeTwo, nodeOne).setWeight(newWeight);
         }
-
-        nodeMap.get(nodeOne).add(new Edge(name, weight, nodeTwo));
-
-        nodeMap.get(nodeOne).add(nodeTwo);
-        nodeMap.get(nodeTwo).add(nodeOne);
     }
 
-    void disconnect(){
-
+    @Override
+    public Collection<Edge<T>> getEdgesFrom(T node) {
+        if(!nodeMap.containsKey(node)){
+            throw new NoSuchElementException();
+        }else{
+            Collection<Edge<T>> edgeCollection = nodeMap.get(node);
+            return edgeCollection;
+        }
     }
 
-    void setConnectionWeight(){
 
-    }
+    public Edge<T> getEdgeBetween(T nodeOne, T nodeTwo){
+        validateNode(nodeOne);
+        validateNode(nodeTwo);
 
-    public int getNodes(){
-        return nodeMap.size();
-    }
-
-//    public int getEdgesFrom(){
-//
-//    }
-
-    void getEdgeBetween(){
-
+        for (Edge<T> edge : nodeMap.get(nodeOne)) {
+            if(edge.getDestination().equals(nodeTwo)) {
+                return edge;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -76,7 +125,7 @@ public class ListGraph<T> implements Iterable<T> {
 
         for (T nodeOne: nodeMap.keySet()) {
             builder.append(nodeOne.toString() + ": ");
-            for (T nodeTwo: nodeMap.get(nodeOne)) {
+            for (Edge<T> nodeTwo: nodeMap.get(nodeOne)) {
                 builder.append(nodeTwo.toString() + " ");
             }
             builder.append("\n");
@@ -85,35 +134,56 @@ public class ListGraph<T> implements Iterable<T> {
         return builder.toString();
     }
 
+
     public boolean pathExists(T nodeOne, T nodeTwo){
-        if(!hasNode(nodeOne) || !hasNode(nodeTwo)){
-            return false;
-        }
-        return true;
-    }
 
-    void getPath() {
+        return hasNode(nodeOne) && hasNode(nodeTwo) && getPath(nodeOne, nodeTwo) != null;
 
     }
+
 
     @Override
-    public Iterator<T> iterator() {
-        return nodeMap.keySet().iterator();
+    public List<Edge<T>> getPath(T from, T to) {
+
+        Map<T, T> connection = new HashMap<>();
+        depthFirstConnection(from, null, connection);
+        if (!connection.containsKey(to)) {
+            return null;
+        }
+
+        ArrayList<Edge<T>> path = new ArrayList<>();
+
+        T current = to;
+        while (!current.equals(from)) {
+            T next = connection.get(current);
+            Edge<T> edge = getEdgeBetween(next, current);
+            path.add(edge);
+            current = next;
+        }
+
+        Collections.reverse(path);
+
+        return Collections.unmodifiableList(path);
     }
 
-    public static void main(String[] args) {
-        ListGraph<String> graph = new ListGraph<>();
+    private void depthFirstConnection(T to, T from, Map<T, T> connection) {
+        connection.put(to, from);
+        for (Edge<T> edge : nodeMap.get(to)) {
+            if (!connection.containsKey(edge.getDestination())) {
+                depthFirstConnection(edge.getDestination(), to, connection);
+            }
+        }
 
-        graph.add("Stockholm");
-        graph.add("Malmö");
-
-        graph.connect("Stockholm", "Malmö");
-
-
-        System.out.println(graph);
-
-        System.out.println("Nodes: " + graph.getNodes());
-        System.out.println("Edges: " + graph.getNodes());
     }
+
+    private void depthFirstVisitAll(T current, Set<T> visited) {
+        visited.add(current);
+        for (Edge<T> edge : nodeMap.get(current)) {
+            if (!visited.contains(edge.getDestination())) {
+                depthFirstVisitAll(edge.getDestination(), visited);
+            }
+        }
+    }
+
 
 }

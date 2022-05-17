@@ -1,28 +1,26 @@
-import java.util.*;
+import java.util.Objects;
 
 public class Edge <T>{
 
-
-
     private T nodeOne;
     private String name;
-    private double weight;
+    private int weight;
 
-    public Edge(String name, double weight, T nodeOne) {
+    public Edge(T nodeOne, String name, int weight) {
         this.nodeOne = Objects.requireNonNull(nodeOne);
         this.name = Objects.requireNonNull(name);
 
-        if (Double.isNaN(weight)) {
+        if (weight < 0) {
             throw new IllegalArgumentException();
         }
         this.weight = weight;
     }
 
-    T getDestination(){
+    public T getDestination() {
         return nodeOne;
     }
 
-    public double getWeight() {
+    public int getWeight() {
         return weight;
     }
 
@@ -41,10 +39,7 @@ public class Edge <T>{
 
     @Override
     public String toString() {
-        return "Edge{" +
-                ", name='" + name + '\'' +
-                ", weight=" + weight +
-                '}';
+        return "till " + nodeOne + " med " + name + " tar " + weight;
     }
 
 }
