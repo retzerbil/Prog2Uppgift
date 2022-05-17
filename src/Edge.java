@@ -1,3 +1,4 @@
+//Grupp 169, alwa1412, vami4627, anre8319
 import java.util.Objects;
 
 public class Edge <T>{

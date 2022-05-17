@@ -1,8 +1,10 @@
+//Grupp 169, alwa1412, vami4627, anre8319
+
 import java.util.*;
 
 public class ListGraph<T> implements Graph<T> {
 
-    private final Map<T,  Set<Edge<T>>>nodeMap = new HashMap<>();
+    private final Map<T, Set<Edge<T>>> nodeMap = new HashMap<>();
 
     private void validateNode(T nodeOne) {
         if (!hasNode(nodeOne)) throw new NoSuchElementException(nodeOne.toString() + " node doesn't exist");
@@ -19,9 +21,8 @@ public class ListGraph<T> implements Graph<T> {
         return nodeMap.get(nodeOne).contains(nodeTwo);
     }
 
-    public void add(T nodeOne){
+    public void add(T nodeOne) {
         nodeMap.putIfAbsent(nodeOne, new HashSet<>());
-        //if (!hasNode(nodeOne)) nodeMap.put(nodeOne, new HashSet<T>());
     }
 
     @Override
@@ -29,13 +30,13 @@ public class ListGraph<T> implements Graph<T> {
         return nodeMap.keySet();
     }
 
-    public void remove(T nodeOne){
-        if(!nodeMap.containsKey(nodeOne)) {
+    public void remove(T nodeOne) {
+        if (!nodeMap.containsKey(nodeOne)) {
             throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeOne + " does not exist");
         }
-        for (Edge<T> edge:nodeMap.get(nodeOne)) {
-            for (Edge<T> nodeToRemove:nodeMap.get(edge.getDestination())) {
-                if(nodeToRemove.getDestination().equals(nodeOne)) {
+        for (Edge<T> edge : nodeMap.get(nodeOne)) {
+            for (Edge<T> nodeToRemove : nodeMap.get(edge.getDestination())) {
+                if (nodeToRemove.getDestination().equals(nodeOne)) {
                     nodeMap.get(edge.getDestination()).remove(nodeToRemove);
                     break;
                 }
@@ -45,62 +46,34 @@ public class ListGraph<T> implements Graph<T> {
         nodeMap.remove(nodeOne);
 
     }
-/*
-    public void connect(T nodeOne, T nodeTwo, String name, int weight){
-        if(pathExists(nodeOne,nodeTwo)){
-            throw new IllegalStateException();
-        } else if(!hasNode(nodeOne)){
+
+    public void connect(T nodeOne, T nodeTwo, String name, int weight) {
+
+        if (!hasNode(nodeOne)) {
             throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeOne + " does not exist");
-        } else if (!hasNode(nodeTwo)){
+        } else if (!hasNode(nodeTwo)) {
             throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeTwo + " does not exist");
-        } else if (weight < 0){
+        } else if (weight < 0) {
             throw new IllegalArgumentException();
-        }
-
-        else if(pathExists(nodeOne,nodeTwo)){
-            //throw new IllegalStateException();
-        }
-
-        else{
+        } else if (getEdgeBetween(nodeOne, nodeTwo) != null) {
+            throw new IllegalStateException();
+        } else {
             Set<Edge<T>> nodeOneEdges = nodeMap.get(nodeOne);
             Set<Edge<T>> nodeTwoEdges = nodeMap.get(nodeTwo);
 
             nodeOneEdges.add(new Edge<T>(nodeTwo, name, weight));
-            nodeTwoEdges.add(new Edge<T>(nodeOne, name, weight));}
-    }
- */
-public void connect(T nodeOne, T nodeTwo, String name, int weight){
-
-    if(!hasNode(nodeOne)){
-        throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeOne + " does not exist");
-    } else if (!hasNode(nodeTwo)){
-        throw new NoSuchElementException(nodeOne.toString() + "Node " + nodeTwo + " does not exist");
-    } else if (weight < 0){
-        throw new IllegalArgumentException();
-    }
-        // är det denna som inte fungerar eller är det path exists?
-        else if(getEdgeBetween(nodeOne,nodeTwo) != null){
-            throw new IllegalStateException();
+            nodeTwoEdges.add(new Edge<T>(nodeOne, name, weight));
         }
+    }
 
 
-
-    else{
-        Set<Edge<T>> nodeOneEdges = nodeMap.get(nodeOne);
-        Set<Edge<T>> nodeTwoEdges = nodeMap.get(nodeTwo);
-
-        nodeOneEdges.add(new Edge<T>(nodeTwo, name, weight));
-        nodeTwoEdges.add(new Edge<T>(nodeOne, name, weight));}
-}
-
-
-    public void disconnect(T nodeOne, T nodeTwo){
-        if(hasNode(nodeOne) || hasNode(nodeTwo)) {
+    public void disconnect(T nodeOne, T nodeTwo) {
+        if (hasNode(nodeOne) || hasNode(nodeTwo)) {
 
             Edge<T> edge1 = getEdgeBetween(nodeOne, nodeTwo);
             Edge<T> edge2 = getEdgeBetween(nodeTwo, nodeOne);
 
-            if(edge1 != null && edge2 != null) {
+            if (edge1 != null && edge2 != null) {
                 this.nodeMap.get(nodeOne).remove(edge1);
                 this.nodeMap.get(nodeTwo).remove(edge2);
             } else {
@@ -110,12 +83,12 @@ public void connect(T nodeOne, T nodeTwo, String name, int weight){
     }
 
     @Override
-    public void setConnectionWeight(T nodeOne, T nodeTwo, int newWeight){
-        if(!nodeMap.containsKey(nodeOne) || !nodeMap.containsKey(nodeTwo)){
+    public void setConnectionWeight(T nodeOne, T nodeTwo, int newWeight) {
+        if (!nodeMap.containsKey(nodeOne) || !nodeMap.containsKey(nodeTwo)) {
             throw new NoSuchElementException();
-        }else if (newWeight < 0){
+        } else if (newWeight < 0) {
             throw new IllegalArgumentException();
-        }else{
+        } else {
             getEdgeBetween(nodeOne, nodeTwo).setWeight(newWeight);
             getEdgeBetween(nodeTwo, nodeOne).setWeight(newWeight);
         }
@@ -123,21 +96,21 @@ public void connect(T nodeOne, T nodeTwo, String name, int weight){
 
     @Override
     public Collection<Edge<T>> getEdgesFrom(T node) {
-        if(!nodeMap.containsKey(node)){
+        if (!nodeMap.containsKey(node)) {
             throw new NoSuchElementException();
-        }else{
+        } else {
             Collection<Edge<T>> edgeCollection = nodeMap.get(node);
             return edgeCollection;
         }
     }
 
 
-    public Edge<T> getEdgeBetween(T nodeOne, T nodeTwo){
+    public Edge<T> getEdgeBetween(T nodeOne, T nodeTwo) {
         validateNode(nodeOne);
         validateNode(nodeTwo);
 
         for (Edge<T> edge : nodeMap.get(nodeOne)) {
-            if(edge.getDestination().equals(nodeTwo)) {
+            if (edge.getDestination().equals(nodeTwo)) {
                 return edge;
             }
         }
@@ -148,9 +121,9 @@ public void connect(T nodeOne, T nodeTwo, String name, int weight){
     public String toString() {
         StringBuilder builder = new StringBuilder();
 
-        for (T nodeOne: nodeMap.keySet()) {
+        for (T nodeOne : nodeMap.keySet()) {
             builder.append(nodeOne.toString() + ": ");
-            for (Edge<T> nodeTwo: nodeMap.get(nodeOne)) {
+            for (Edge<T> nodeTwo : nodeMap.get(nodeOne)) {
                 builder.append(nodeTwo.toString() + " ");
             }
             builder.append("\n");
@@ -160,10 +133,10 @@ public void connect(T nodeOne, T nodeTwo, String name, int weight){
     }
 
 
-    public boolean pathExists(T nodeOne, T nodeTwo){
-        
+    public boolean pathExists(T nodeOne, T nodeTwo) {
+
         return hasNode(nodeOne) && hasNode(nodeTwo) && getPath(nodeOne, nodeTwo) != null;
-        
+
     }
 
 
