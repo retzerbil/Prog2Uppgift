@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -89,6 +90,7 @@ public class PathFinder extends Application {
         Button newConnectionButton = new Button("New Connection");
         newConnectionButton.setOnAction(new newConnectionHandler());
         Button changeConnectionButton = new Button("Change Connection");
+        changeConnectionButton.setOnAction(new changeConnectionHandler());
 
         controls.getChildren().addAll(findPathButton, showConnectionButton, newButton, newConnectionButton, changeConnectionButton);
 
@@ -208,10 +210,10 @@ public class PathFinder extends Application {
     class newConnectionHandler implements EventHandler<ActionEvent>{
         @Override public void handle(ActionEvent event){
             if(selectedPlaces.size() < 2){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "You have to have two places selected");
-            alert.showAndWait();
-            return;
-        }try{
+                Alert alert = new Alert(Alert.AlertType.ERROR, "You have to have two places selected");
+                alert.showAndWait();
+                return;
+            }try{
                 NewPlace from = selectedPlaces.get(0);
                 NewPlace to = selectedPlaces.get(1);
 
@@ -242,6 +244,59 @@ public class PathFinder extends Application {
 
 
                 listGraph.connect(from,to,name,time);
+                Line line = new Line(from.getTranslateX(),from.getTranslateY(),to.getTranslateX(),to.getTranslateY());
+                /*
+                line.setStartX(from.getTranslateX());
+                line.setStartY(from.getTranslateY());
+                line.setEndX(to.getTranslateX());
+                line.setEndY(to.getTranslateY());
+                 */
+                center.getChildren().add(line);
+            }catch(NumberFormatException e){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Time has to be a number");
+                alert.showAndWait();
+            }
+        }
+    }
+
+    class changeConnectionHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            if(selectedPlaces.size() < 2){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "You have to have two places selected");
+                alert.showAndWait();
+                return;
+            }try{
+                NewPlace from = selectedPlaces.get(0);
+                NewPlace to = selectedPlaces.get(1);
+
+                if(!listGraph.pathExists(from, to)){
+                    Alert alert = new Alert(Alert.AlertType.ERROR, from.getName() + " and " + to.getName() + " are not connected");
+                    alert.showAndWait();
+                    return;
+                }
+
+                ConnectionDialog dialog = new ConnectionDialog(from.getName(),to.getName());
+                dialog.nameField.setText(listGraph.getEdgeBetween(from,to).getName());
+                dialog.nameField.setEditable(false);
+                Optional<ButtonType> result = dialog.showAndWait();
+                if(result.isPresent() && result.get() != ButtonType.OK)
+                    return;
+
+
+                int time = dialog.getTime();
+
+
+                if(time < 0){
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Time cannot be a negative integer");
+                    alert.showAndWait();
+                }
+
+
+
+                listGraph.getEdgeBetween(from,to).setWeight(time);
+                listGraph.getEdgeBetween(to,from).setWeight(time);
+                System.out.println(listGraph.toString());
                 Line line = new Line(from.getTranslateX(),from.getTranslateY(),to.getTranslateX(),to.getTranslateY());
                 /*
                 line.setStartX(from.getTranslateX());
