@@ -24,6 +24,10 @@ public class Edge <T>{
         return weight;
     }
 
+    public String getWeightString(){
+        return Integer.toString(weight);
+    }
+
     void setWeight(int newWeight){
         if(newWeight < 0){
             throw new IllegalArgumentException("Vikten är negativ");

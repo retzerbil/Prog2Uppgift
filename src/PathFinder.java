@@ -84,6 +84,7 @@ public class PathFinder extends Application {
 
         Button findPathButton = new Button("Find Path");
         Button showConnectionButton = new Button("Show Connection");
+        showConnectionButton.setOnAction(new ShowConnectionHandler());
         //Button newButton = new Button("New Place");
         newPlaceButton.setOnAction(new NewButtonHandler());
         Button newConnectionButton = new Button("New Connection");
@@ -287,6 +288,42 @@ public class PathFinder extends Application {
                 listGraph.getEdgeBetween(from,to).setWeight(time);
                 listGraph.getEdgeBetween(to,from).setWeight(time);
                 System.out.println(listGraph.toString());
+            }catch(NumberFormatException e){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Time has to be a number");
+                alert.showAndWait();
+            }
+        }
+    }
+
+
+    class ShowConnectionHandler implements EventHandler<ActionEvent> {
+        @Override
+        public void handle(ActionEvent event) {
+            if (selectedPlaces.size() < 2) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "You have to have two places selected");
+                alert.showAndWait();
+                return;
+            }
+            try {
+                NewPlace from = selectedPlaces.get(0);
+                NewPlace to = selectedPlaces.get(1);
+
+                if (!listGraph.pathExists(from, to)) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, from.getName() + " and " + to.getName() + " are not connected");
+                    alert.showAndWait();
+                    return;
+                }
+                ConnectionDialog dialog = new ConnectionDialog(from.getName(), to.getName());
+                dialog.nameField.setText(listGraph.getEdgeBetween(from, to).getName());
+                dialog.nameField.setEditable(false);
+                dialog.timeField.setText(listGraph.getEdgeBetween(from, to).getWeightString());
+                dialog.timeField.setEditable(false);
+
+
+                Optional<ButtonType> result = dialog.showAndWait();
+                if (result.isPresent() && result.get() != ButtonType.OK)
+                    return;
+
             }catch(NumberFormatException e){
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Time has to be a number");
                 alert.showAndWait();
