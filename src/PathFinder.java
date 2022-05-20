@@ -18,7 +18,6 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class PathFinder extends Application {
     private Pane center;
     private boolean changed = false;
 
-    Button newButton = new Button("New Place");
+    Button newPlaceButton = new Button("New Place");
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -86,26 +85,27 @@ public class PathFinder extends Application {
         Button findPathButton = new Button("Find Path");
         Button showConnectionButton = new Button("Show Connection");
         //Button newButton = new Button("New Place");
-        newButton.setOnAction(new NewButtonHandler());
+        newPlaceButton.setOnAction(new NewButtonHandler());
         Button newConnectionButton = new Button("New Connection");
         newConnectionButton.setOnAction(new newConnectionHandler());
         Button changeConnectionButton = new Button("Change Connection");
         changeConnectionButton.setOnAction(new changeConnectionHandler());
 
-        controls.getChildren().addAll(findPathButton, showConnectionButton, newButton, newConnectionButton, changeConnectionButton);
+        controls.getChildren().addAll(findPathButton, showConnectionButton, newPlaceButton, newConnectionButton, changeConnectionButton);
 
         vbox.getChildren().add(controls);
 
         //CENTER
 
         center = new Pane();
-        Image image = new Image("file:D:/europa.gif");
-        ImageView imageView = new ImageView(image);
-        center.getChildren().add(imageView);
+        //Image image = new Image("file:D:/europa.gif");
+        //ImageView imageView = new ImageView(image);
+        //center.getChildren().add(imageView);
         root.setCenter(center);
 
 
-        Scene scene = new Scene(root, 600, 800, Color.GRAY);
+        Scene scene = new Scene(root, Color.GRAY);
+        stage.setWidth(630);
         stage.setScene(scene);
         stage.setTitle("PathFinder");
         stage.show();
@@ -159,7 +159,7 @@ public class PathFinder extends Application {
         public void handle(ActionEvent event) {
             center.setOnMouseClicked(new ClickHandler());
             center.setCursor(Cursor.CROSSHAIR);
-            newButton.setDisable(true);
+            newPlaceButton.setDisable(true);
         }
     }
 
@@ -184,7 +184,7 @@ public class PathFinder extends Application {
             place.setOnMouseClicked(new PlaceSelectClickHandler());
             center.getChildren().add(place);
             listGraph.add(place);
-            newButton.setDisable(false);
+            newPlaceButton.setDisable(false);
         }
     }
 
@@ -241,16 +241,11 @@ public class PathFinder extends Application {
                     alert.showAndWait();
                 }
 
-
-
                 listGraph.connect(from,to,name,time);
-                Line line = new Line(from.getTranslateX(),from.getTranslateY(),to.getTranslateX(),to.getTranslateY());
-                /*
-                line.setStartX(from.getTranslateX());
-                line.setStartY(from.getTranslateY());
-                line.setEndX(to.getTranslateX());
-                line.setEndY(to.getTranslateY());
-                 */
+
+                Line line = new Line(from.getCenterX(),from.getCenterY(),to.getCenterX(),to.getCenterY());
+                line.setStrokeWidth(4);
+                line.setDisable(true);
                 center.getChildren().add(line);
             }catch(NumberFormatException e){
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Time has to be a number");
@@ -283,28 +278,15 @@ public class PathFinder extends Application {
                 if(result.isPresent() && result.get() != ButtonType.OK)
                     return;
 
-
                 int time = dialog.getTime();
-
-
                 if(time < 0){
                     Alert alert = new Alert(Alert.AlertType.ERROR, "Time cannot be a negative integer");
                     alert.showAndWait();
                 }
 
-
-
                 listGraph.getEdgeBetween(from,to).setWeight(time);
                 listGraph.getEdgeBetween(to,from).setWeight(time);
                 System.out.println(listGraph.toString());
-                Line line = new Line(from.getTranslateX(),from.getTranslateY(),to.getTranslateX(),to.getTranslateY());
-                /*
-                line.setStartX(from.getTranslateX());
-                line.setStartY(from.getTranslateY());
-                line.setEndX(to.getTranslateX());
-                line.setEndY(to.getTranslateY());
-                 */
-                center.getChildren().add(line);
             }catch(NumberFormatException e){
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Time has to be a number");
                 alert.showAndWait();
@@ -336,11 +318,11 @@ public class PathFinder extends Application {
     class newMapHandler implements EventHandler<ActionEvent>{
         @Override public void handle(ActionEvent event){
             //CENTER
-            Pane center = new Pane();
-            //path behövs ändras per dator, borde ha en bestämd plats.
-            Image image = new Image("E:/Skola/ÅR 2/PROG2/europa.gif");
+            Image image = new Image("/europa.gif");
             ImageView imageView = new ImageView(image);
             center.getChildren().add(imageView);
+            stage.setHeight(845);
+            stage.setWidth(630);
             root.setCenter(center);
         }
     }
