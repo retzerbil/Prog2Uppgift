@@ -14,13 +14,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -28,6 +28,8 @@ import java.util.Optional;
 public class PathFinder extends Application {
     ArrayList<NewPlace> selectedPlaces = new ArrayList<>();
     ListGraph<NewPlace> listGraph = new ListGraph<>();
+    ArrayList<String> places = new ArrayList<>();
+    ArrayList<String> connections = new ArrayList<>();
 
     private Stage stage;
     private BorderPane root;
@@ -41,7 +43,7 @@ public class PathFinder extends Application {
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException{
 
         this.stage = stage;
         root = new BorderPane();
@@ -55,9 +57,9 @@ public class PathFinder extends Application {
         MenuItem newMap = new MenuItem("New Map");
         newMap.setOnAction(new newMapHandler());
         MenuItem openItem = new MenuItem("Open");
-        //openItem.setOnAction(new openItemHandler());
+        openItem.setOnAction(new openItemHandler());
         MenuItem saveItem = new MenuItem("Save");
-        //saveItem.setOnAction(new saveItemHandler());
+        saveItem.setOnAction(new saveItemHandler());
         MenuItem saveImage = new MenuItem("Save Image");
         saveImage.setOnAction(new SaveImageHandler());
         MenuItem exitProgram = new MenuItem("Exit");
@@ -98,6 +100,9 @@ public class PathFinder extends Application {
 
         //CENTER
 
+
+
+
         center = new Pane();
         //Image image = new Image("file:D:/europa.gif");
         //ImageView imageView = new ImageView(image);
@@ -113,6 +118,8 @@ public class PathFinder extends Application {
         stage.setResizable(false);
 
     }
+
+
     class ConnectionDialog extends Alert {
         private final TextField nameField = new TextField();
         private final TextField timeField = new TextField();
@@ -164,6 +171,44 @@ public class PathFinder extends Application {
         }
     }
 
+    class saveItemHandler implements EventHandler<ActionEvent> {
+        @Override
+        public void handle(ActionEvent event){
+            try {
+                FileWriter fileWriter = new FileWriter("europa.graph");
+                PrintWriter printWriter = new PrintWriter(fileWriter);
+                printWriter.println("file:europa.gif");
+                String temp = places.toString().replace("[","").replace("]","").replace(", ","");
+                int temp2 = temp.length();
+                printWriter.println(temp.substring(0,temp2-1));
+                printWriter.println(connections.toString().replace("[","").replace("]","").replace(", ",""));
+                printWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    class openItemHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            FileReader fileReader = null;
+            try {
+                fileReader = new FileReader("europa.graph");
+                BufferedReader bufferedReader = new BufferedReader(fileReader);
+                bufferedReader.readLine();
+                fileReader.close();
+                bufferedReader.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+        }
+    }
+
     class ClickHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent event) {
@@ -182,6 +227,7 @@ public class PathFinder extends Application {
             }
 
             NewPlace place = new NewPlace(placeName.get(), x, y);
+            places.add(placeName.get() + ";" + x + ";" + y + ";");
             place.setOnMouseClicked(new PlaceSelectClickHandler());
             center.getChildren().add(place);
             listGraph.add(place);
@@ -243,6 +289,7 @@ public class PathFinder extends Application {
                 }
 
                 listGraph.connect(from,to,name,time);
+                connections.add(from.getName() + ";" + to.getName() + ";" + name + ";" + time + "\n");
 
                 Line line = new Line(from.getCenterX(),from.getCenterY(),to.getCenterX(),to.getCenterY());
                 line.setStrokeWidth(4);
@@ -287,6 +334,8 @@ public class PathFinder extends Application {
 
                 listGraph.getEdgeBetween(from,to).setWeight(time);
                 listGraph.getEdgeBetween(to,from).setWeight(time);
+
+
                 System.out.println(listGraph.toString());
             }catch(NumberFormatException e){
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Time has to be a number");
@@ -316,7 +365,7 @@ public class PathFinder extends Application {
                 ConnectionDialog dialog = new ConnectionDialog(from.getName(), to.getName());
                 dialog.nameField.setText(listGraph.getEdgeBetween(from, to).getName());
                 dialog.nameField.setEditable(false);
-                dialog.timeField.setText(listGraph.getEdgeBetween(from, to).getWeightString());
+                dialog.timeField.setText(listGraph.getEdgeBetween(from, to).getSWeight());
                 dialog.timeField.setEditable(false);
 
 
