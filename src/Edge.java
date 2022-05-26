@@ -1,6 +1,6 @@
 import java.util.Objects;
 
-public class Edge <T>{
+public class Edge<T> {
 
     private T nodeOne;
     private String name;
@@ -24,15 +24,14 @@ public class Edge <T>{
         return weight;
     }
 
-    public String getWeightString(){
+    public String getSWeight() {
         return Integer.toString(weight);
     }
 
-    void setWeight(int newWeight){
-        if(newWeight < 0){
+    void setWeight(int newWeight) {
+        if (newWeight < 0) {
             throw new IllegalArgumentException("Vikten är negativ");
-        }
-        else{
+        } else {
             this.weight = newWeight;
         }
     }

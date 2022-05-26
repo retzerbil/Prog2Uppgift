@@ -17,7 +17,6 @@ public class NewPlace extends Circle {
         setCenterY(y);
 
 
-
         this.name = name;
         selected = false;
     }
@@ -29,22 +28,22 @@ public class NewPlace extends Circle {
                 '}';
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
 
-    public void selectPlace(){
+    public void selectPlace() {
         this.selected = true;
         this.setFill(Color.RED);
     }
 
-    public void deselectPlace(){
+    public void deselectPlace() {
         this.selected = false;
         this.setFill(Color.BLUE);
     }
 
-    public boolean isSelected(){
+    public boolean isSelected() {
         return selected;
     }
 
